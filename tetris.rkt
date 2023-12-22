@@ -108,18 +108,12 @@
 
 
 (define (render-game tg)
-  ; !!!
   ; Tetris -> Tetris
   ; render the state of the game on screen
-  (render-sediment (tetris-sediment tg)
-                   (place-image ACTIVEPIECE
-                                (unit-conversion (point-x (tetris-piece tg)))
-                                (unit-conversion (point-y (tetris-piece tg)))
-                                GAMEBOARD)))
+  (render-sediment (tetris-sediment tg) (render-piece (tetris-piece tg))))
 
 
 (define (render-sediment sd bkgd)
-  ; !!!
   ; ListOfPoints Img -> Img
   ; render the piled-up pieces on screen
   (cond
@@ -130,11 +124,31 @@
                        (render-sediment (rest sd) bkgd))]))
 
 
+(define (render-piece p)
+  ; Point Img -> Img
+  ; render the active piec on screen
+  (place-image ACTIVEPIECE
+               (unit-conversion (point-x p))
+               (unit-conversion (point-y p))
+               GAMEBOARD))
+
+
 (define (sidle-piece tg ke)
   ; Tetris -> Tetris
   ; user controls the sideways motion of the active
   ; piece with left and right keys
-  tg)
+  (cond
+    [(and (key=? "left" ke) (> (point-x (tetris-piece tg)) 1))
+     (make-tetris
+      (make-point (sub1 (point-x (tetris-piece tg)))
+                  (point-y (tetris-piece tg)))
+      (tetris-sediment tg))]
+    [(and (key=? "right" ke) (< (point-x (tetris-piece tg)) NCELLSHORIZ))
+     (make-tetris
+      (make-point (add1 (point-x (tetris-piece tg)))
+                  (point-y (tetris-piece tg)))
+      (tetris-sediment tg))]
+    [else tg]))
 
 
 (define (overwhelmed? tg)
