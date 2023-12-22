@@ -27,6 +27,7 @@
     [(empty? (rest sd)) ...]
     [else ... (fn-on-point (first sd)) ... (fn-on-sediment (rest sd))]))
 
+
 (define-struct point [x y])
 ; A Point is a [N N]
 ; It consists of two natural numbers that correspond to x and y
@@ -40,6 +41,8 @@
 ; constants
 
 (define (make-piece color)
+  ; String -> Img
+  ; implement piece design as a function
   (beside
    (rectangle SPACER SEGMENTSIZE "solid" BACKGROUNDCOLOR)
    (above
@@ -64,8 +67,7 @@
 (define NCELLSVERT 30)
 (define CANVASWIDTH (* NCELLSHORIZ UNITCELLSIZE))
 (define CANVASHEIGHT (* NCELLSVERT UNITCELLSIZE))
-(define STARTPOINT (make-point (* (quotient NCELLSHORIZ 2) UNITCELLSIZE)
-                               (- (quotient UNITCELLSIZE 2))))
+(define STARTPOINT (make-point (quotient NCELLSHORIZ 2) 0))
 (define SPACER 1)
 (define SEGMENTSIZE (- UNITCELLSIZE SPACER))
 (define CURVATURE 4)
@@ -92,9 +94,13 @@
   ; !!!
   ; Tetris -> Tetris
   ; move the active piece
-  (make-tetris (make-point (point-x (tetris-piece tg))
-               (+ (point-y (tetris-piece tg)) UNITCELLSIZE))
-               (tetris-sediment tg)))
+  (cond
+    [(= (point-y (tetris-piece tg)) NCELLSVERT)
+     (make-tetris STARTPOINT (cons (tetris-piece tg) (tetris-sediment tg)))]
+    [else
+     (make-tetris (make-point (point-x (tetris-piece tg))
+                              (add1 (point-y (tetris-piece tg))))
+                  (tetris-sediment tg))]))
 
 
 (define (render-game tg)
@@ -102,8 +108,8 @@
   ; Tetris -> Tetris
   ; render the state of the game on screen
   (place-image ACTIVEPIECE
-               (point-x (tetris-piece tg))
-               (point-y (tetris-piece tg))
+               (unit-conversion (point-x (tetris-piece tg)))
+               (unit-conversion (point-y (tetris-piece tg)))
                GAMEBOARD))
 
 
@@ -124,6 +130,12 @@
   ; Tetris -> Tetris
   ; render a game-over screen
   (render-game tg))
+
+
+(define (unit-conversion n)
+; Number -> Number
+  ; converts a board position to a pixel location suitable for rendering
+  (* (- n 1/2) UNITCELLSIZE))
 
 
 ; actions
