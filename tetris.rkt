@@ -97,6 +97,10 @@
   (cond
     [(= (point-y (tetris-piece tg)) NCELLSVERT)
      (make-tetris STARTPOINT (cons (tetris-piece tg) (tetris-sediment tg)))]
+    [(member?
+      (make-point (point-x (tetris-piece tg)) (add1 (point-y (tetris-piece tg))))
+      (tetris-sediment tg))
+     (make-tetris STARTPOINT (cons (tetris-piece tg) (tetris-sediment tg)))]
     [else
      (make-tetris (make-point (point-x (tetris-piece tg))
                               (add1 (point-y (tetris-piece tg))))
@@ -114,44 +118,44 @@
                                 GAMEBOARD)))
 
 
-  (define (render-sediment sd bkgd)
-    ; !!!
-    ; ListOfPoints Img -> Img
-    ; render the piled-up pieces on screen
-    (cond
-      [(empty? sd) bkgd]
-      [else (place-image SEDIMENTPIECE
-                         (unit-conversion (point-x (first sd)))
-                         (unit-conversion (point-y (first sd)))
-                         (render-sediment (rest sd) bkgd))]))
+(define (render-sediment sd bkgd)
+  ; !!!
+  ; ListOfPoints Img -> Img
+  ; render the piled-up pieces on screen
+  (cond
+    [(empty? sd) bkgd]
+    [else (place-image SEDIMENTPIECE
+                       (unit-conversion (point-x (first sd)))
+                       (unit-conversion (point-y (first sd)))
+                       (render-sediment (rest sd) bkgd))]))
 
 
-  (define (sidle-piece tg ke)
-    ; Tetris -> Tetris
-    ; user controls the sideways motion of the active
-    ; piece with left and right keys
-    tg)
+(define (sidle-piece tg ke)
+  ; Tetris -> Tetris
+  ; user controls the sideways motion of the active
+  ; piece with left and right keys
+  tg)
 
 
-  (define (overwhelmed? tg)
-    ; Tetris -> Boolean
-    ; returns #t when the the sediment piles up too high
-    #f)
+(define (overwhelmed? tg)
+  ; Tetris -> Boolean
+  ; returns #t when the the sediment piles up too high
+  #f)
 
 
-  (define (game-over tg)
-    ; Tetris -> Tetris
-    ; render a game-over screen
-    (render-game tg))
+(define (game-over tg)
+  ; Tetris -> Tetris
+  ; render a game-over screen
+  (render-game tg))
 
 
-  (define (unit-conversion n)
-    ; Number -> Number
-    ; converts a board position to a pixel location suitable for rendering
-    (* (- n 1/2) UNITCELLSIZE))
+(define (unit-conversion n)
+  ; Number -> Number
+  ; converts a board position to a pixel location suitable for rendering
+  (* (- n 1/2) UNITCELLSIZE))
 
 
-  ; actions
-  (define STARTETRIS (make-tetris STARTPOINT '()))
+; actions
+(define STARTETRIS (make-tetris STARTPOINT '()))
 
-  (main STARTETRIS)
+(main STARTETRIS)
