@@ -39,41 +39,40 @@
 
 ; constants
 
+(define (make-piece color)
+  (beside
+   (rectangle SPACER SEGMENTSIZE "solid" BACKGROUNDCOLOR)
+   (above
+    (rectangle SEGMENTSIZE SPACER "solid" BACKGROUNDCOLOR)
+    (overlay/align
+     "left" "bottom" (circle CURVATURE "solid" color)
+     (overlay/align
+      "right" "bottom" (circle CURVATURE "solid" color)
+      (overlay/align
+       "right" "top" (circle CURVATURE "solid" color)
+       (overlay/align
+        "left" "top" (circle CURVATURE "solid" color)
+        (overlay
+         (rectangle SEGMENTSIZE PULLBACK "solid" color)
+         (rectangle PULLBACK SEGMENTSIZE "solid" color)))))))))
+
 (define PIECECOLOR "blue")
+(define SEDIMENTCOLOR "blue")
 (define BACKGROUNDCOLOR "white")
 (define UNITCELLSIZE 16)
 (define NCELLSHORIZ 24)
 (define NCELLSVERT 30)
 (define CANVASWIDTH (* NCELLSHORIZ UNITCELLSIZE))
 (define CANVASHEIGHT (* NCELLSVERT UNITCELLSIZE))
-(define SNAKESTARTPT (make-point
-                      (* (quotient NCELLSHORIZ 2) UNITCELLSIZE)
-                      (* (quotient NCELLSVERT 2) UNITCELLSIZE)))
+(define STARTPOINT (make-point (* (quotient NCELLSHORIZ 2) UNITCELLSIZE)
+                               (- (quotient UNITCELLSIZE 2))))
 (define SPACER 1)
 (define SEGMENTSIZE (- UNITCELLSIZE SPACER))
 (define CURVATURE 4)
 (define PULLBACK (- SEGMENTSIZE CURVATURE CURVATURE))
-(define PIECE
-  (beside
-   (rectangle SPACER SEGMENTSIZE "solid" BACKGROUNDCOLOR)
-   (above
-    (rectangle SEGMENTSIZE SPACER "solid" BACKGROUNDCOLOR)
-    (overlay/align
-     "left" "bottom" (circle CURVATURE "solid" PIECECOLOR)
-     (overlay/align
-      "right" "bottom" (circle CURVATURE "solid" PIECECOLOR)
-      (overlay/align
-       "right" "top" (circle CURVATURE "solid" PIECECOLOR)
-       (overlay/align
-        "left" "top" (circle CURVATURE "solid" PIECECOLOR)
-        (overlay
-         (rectangle SEGMENTSIZE PULLBACK "solid" PIECECOLOR)
-         (rectangle PULLBACK SEGMENTSIZE "solid" PIECECOLOR)))))))))
-(define CANVAS  (empty-scene CANVASWIDTH CANVASHEIGHT BACKGROUNDCOLOR))
-(define GAMEBOARD
-  (overlay CANVAS
-           (rectangle (+ CANVASWIDTH UNITCELLSIZE)
-                      (+ CANVASHEIGHT UNITCELLSIZE) "solid" "yellow")))
+(define SEDIMENTPIECE (make-piece SEDIMENTCOLOR))
+(define ACTIVEPIECE (make-piece PIECECOLOR))
+(define GAMEBOARD  (empty-scene CANVASWIDTH CANVASHEIGHT BACKGROUNDCOLOR))
 
 
 ; functions
@@ -93,20 +92,25 @@
   ; !!!
   ; Tetris -> Tetris
   ; move the active piece
-  tg)
+  (make-tetris (make-point (point-x (tetris-piece tg))
+               (+ (point-y (tetris-piece tg)) UNITCELLSIZE))
+               (tetris-sediment tg)))
 
 
 (define (render-game tg)
   ; !!!
   ; Tetris -> Tetris
   ; render the state of the game on screen
-  CANVAS)
+  (place-image ACTIVEPIECE
+               (point-x (tetris-piece tg))
+               (point-y (tetris-piece tg))
+               GAMEBOARD))
 
 
 (define (sidle-piece tg ke)
   ; Tetris -> Tetris
   ; user controls the sideways motion of the active
-  ; piece with left ande right keys
+  ; piece with left and right keys
   tg)
 
 
@@ -123,6 +127,6 @@
 
 
 ; actions
-(define STARTETRIS (make-tetris (make-point 0 0) (list (make-point 0 0))))
+(define STARTETRIS (make-tetris STARTPOINT '()))
 
 (main STARTETRIS)
