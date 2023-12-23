@@ -87,7 +87,7 @@
     [on-tick update-game 1/7]
     [to-draw render-game]
     [on-key sidle-piece]
-    [stop-when overwhelmed? game-over]))
+    [stop-when done? game-over]))
 
 
 (define (update-game tg)
@@ -151,10 +151,20 @@
     [else tg]))
 
 
-(define (overwhelmed? tg)
+(define (done? sd)
   ; Tetris -> Boolean
   ; returns #t when the the sediment piles up too high
-  #f)
+  (overwhelmed? (tetris-sediment sd)))
+
+  
+(define (overwhelmed? sd)
+  ; ListOfPoints -> Boolean
+  ; returns #t if any piece is at the top of the screen, at y-position 1
+  (and
+   (not (empty? sd))
+   (or
+    (= (point-y (first sd)) 1)
+    (overwhelmed? (rest sd)))))
 
 
 (define (game-over tg)
